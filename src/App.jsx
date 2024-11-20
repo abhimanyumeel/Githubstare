@@ -4,7 +4,9 @@ function App() {
   const [username, setUsername] = useState('');
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState('');
+  const [userEvents, setUserEvents] = useState([]);
 
+// To fetch username and its' data
   const fetchUserData = async () => {
     if (username === '') {
       alert('Please enter a GitHub username!');
@@ -19,11 +21,46 @@ function App() {
       const data = await response.json();
       setUserData(data);
       setError('');
+
+      await fetchUserEvents();
     } catch (error) {
       setUserData(null);
       setError('Error fetching user data. Please try again.');
     }
   };
+
+  // To fetch recent user events data
+  const fetchUserEvents = async () => {
+    try {
+      const response = await fetch(`https://api.github.com/users/${username}/events`);
+      if (!response.ok) {
+        throw new Error('Error fetching user events');
+      }
+      const events = await response.json();
+  
+      // Filter for push and pull request events
+      const commitEvents = events.filter(
+        (event) => event.type === 'PushEvent' || event.type === 'PullRequestEvent'
+      );
+  
+      // Add relevant event data
+      const eventDetails = commitEvents.map((event) => {
+        const isPush = event.type === 'PushEvent';
+        return {
+          type: isPush ? 'Push' : 'Pull Request',
+          repo: event.repo.name,
+          time: event.created_at,
+          commits: isPush ? event.payload.commits : [], // Only PushEvent has commits
+        };
+      });
+  
+      setUserEvents(eventDetails); // Update state with cleaned event data
+    } catch (error) {
+      console.error('Error fetching user events:', error);
+      setError('Unable to fetch user events');
+    }
+  };
+  
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center">
@@ -53,7 +90,7 @@ function App() {
             <img
               src={userData.avatar_url}
               alt={`${username}'s avatar`}
-              className="w-24 h-24 rounded-full mx-auto"
+              className="w-36 h-36 border-2 border-yellow-500 rounded-full mx-auto"
             />
             <h2 className="text-xl font-bold text-center mt-4">{userData.name || userData.login}</h2>
             <p className="text-center text-gray-400 mt-2">{userData.bio || 'No bio available'}</p>
@@ -81,6 +118,34 @@ function App() {
             </a>
           </div>
         )}
+
+        {userEvents.length > 0 && (
+          <div className="bg-gray-800 ms-3 p-4 rounded-lg shadow-md w-full max-w-3xl">
+            <h3 className="text-lg font-bold text-center mb-4 text-yellow-500">Recent GitHub Events</h3>
+            <ul className="space-y-4">
+              {userEvents.map((event, index) => (
+                <li key={index} className="p-3 bg-gray-700 rounded-md">
+                  <p>
+                    <span className="font-bold text-white">{event.type}:</span> {event.repo}
+                  </p>
+                  {event.type === 'Push' && event.commits.length > 0 && (
+                    <ul className="mt-2 text-sm text-gray-300">
+                      {event.commits.map((commit, idx) => (
+                        <li key={idx}>
+                          - <span className="font-medium">{commit.message}</span>{' '}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <p className="text-gray-400 text-xs mt-1">
+                    Time: {new Date(event.time).toLocaleString()}
+                  </p>
+                </li>
+              ))}
+            </ul>
+           </div>
+          )}
+
 
         
       </div>
