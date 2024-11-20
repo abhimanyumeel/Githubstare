@@ -87,6 +87,7 @@ function App() {
         {error && <p className="text-red-500 font-semibold">{error}</p>}
         {userData && (
           <div className="w-full bg-gray-800 p-4 rounded-lg shadow-md mb-6">
+            
             <img
               src={userData.avatar_url}
               alt={`${username}'s avatar`}
