@@ -83,10 +83,10 @@ function App() {
           Search
         </button>
       </div>
-      <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center mt-4 sm:p-8">
+      <div className="min-h-screen w-full bg-gray-900 sm:w-full text-white sm:flex sm:flex-row sm:items-start mt-4 sm:p-8">
         {error && <p className="text-red-500 font-semibold">{error}</p>}
         {userData && (
-          <div className="w-full sm:w-2/3 bg-gray-800 p-4 rounded-lg shadow-md mb-6">
+          <div className="w-full bg-gray-800 p-4 rounded-lg shadow-md mb-6">
             <img
               src={userData.avatar_url}
               alt={`${username}'s avatar`}
@@ -120,7 +120,7 @@ function App() {
         )}
 
         {userEvents.length > 0 && (
-          <div className="bg-gray-800 mt-4 ms-3 p-4 rounded-lg shadow-md w-full max-w-3xl">
+          <div className="bg-gray-800 sm:ms-3 p-4 rounded-lg shadow-md w-full ">
             <h3 className="text-lg font-bold text-center mb-4 text-yellow-500">Recent GitHub Events</h3>
             <ul className="space-y-4">
               {userEvents.map((event, index) => (
